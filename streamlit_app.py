@@ -1,6 +1,6 @@
 import streamlit as st
 import os
-import webbrowser
+import imgkit
 from decimal import *
 
 
@@ -113,12 +113,22 @@ def generate_prices(df):
     sign.write(html)
     sign.close()
 
-def show_sign(df):
+def download_sign(df):
     
     generate_prices(df)
 
-    filename = 'file:///'+os.getcwd()+'/html/' + 'sign.html'
-    webbrowser.open_new_tab(filename)
+    options = {
+    'quiet': '',
+    '--enable-local-file-access':''
+    }
+    
+    imgkit.from_file(os.getcwd() + '/html/sign.html', 'out.jpg', options=options)
+
+    with open("./out.jpg", "rb") as image:
+        document = image.read()
+    
+    return document
+    
 
 st.image(png_path, width = 250)
 
@@ -129,7 +139,6 @@ df = {
 
 edited_df = st.data_editor(df, use_container_width=True, hide_index=True, disabled=["Carburante"])
 
-if st.button("Generar Cartel", "Precios_Carburantes.pdf", disabled= not check_values(edited_df)):
-    show_sign(edited_df)
+st.download_button("Generar Cartel", download_sign(df), "Precios_Carburantes.jpg", disabled= not check_values(edited_df))
 
 st.caption(LEGAL_TEXT)
